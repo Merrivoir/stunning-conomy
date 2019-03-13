@@ -1,0 +1,39 @@
+'URL для запроса https://www.conomy.ru/tables/{номер таблицы}/html
+'Номер таблицы находится в коде страницы с адресом из ячейки {адрес}/{тикер}-rk, в тэге <div class="table_insert" data-id="{номер таблицы}">
+
+Sub XHRequest(strURL As String, Refer As String)
+
+    Dim objXHR As MSXML2.XMLHTTP60
+    Dim strResponse As String
+
+    On Error GoTo ExitFunction
+
+    Set objXHR = New MSXML2.XMLHTTP60
+    With objXHR
+        .Open "get", strURL, False
+        .setRequestHeader "host", "www.conomy.ru"
+        .setRequestHeader "user-agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:51.0) Gecko/20100101 Firefox/51.0"
+        .setRequestHeader "Accept", "*/*"
+        .setRequestHeader "Accept-Language", "ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3"
+        .setRequestHeader "Accept-Encoding", "gzip, deflate, br"
+        .setRequestHeader "Referer", Refer
+        .setRequestHeader "X-Requested-With", "XMLHttpRequest"
+        .setRequestHeader "Connection", "keep-alive"
+        .send
+        While .readyState <> 4
+            DoEvents
+        Wend
+        strResponse = .responseText
+    End With
+
+'Debug.Print strResponse
+Set objXHR = Nothing
+
+ParseHtml strResponse
+
+ExitFunction:
+    If Err.Number <> 0 Then
+        Debug.Print Err.Description, strURL, Refer
+    End If
+    
+End Sub
